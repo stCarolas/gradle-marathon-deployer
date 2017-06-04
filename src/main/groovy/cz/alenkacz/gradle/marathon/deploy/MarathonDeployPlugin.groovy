@@ -8,6 +8,7 @@ class MarathonDeployPlugin implements Plugin<Project> {
         DeployTask deployTask = target.task('deployToMarathon', type: DeployTask)
         CanaryDeployTask canaryDeployTask = target.task('deployCanaryToMarathon', type: CanaryDeployTask)
         PrintTask printTask = target.task('printMarathonJson', type: PrintTask)
+        DestroyTask destroyTask = target.task('destroyOnMarathon', type: DestroyTask)
         PluginExtension extension = target.extensions.create('marathon', PluginExtension)
 
         deployTask.pluginExtension = extension
