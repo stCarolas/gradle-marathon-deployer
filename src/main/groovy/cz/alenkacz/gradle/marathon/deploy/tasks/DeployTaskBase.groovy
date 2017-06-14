@@ -1,6 +1,7 @@
 package cz.alenkacz.gradle.marathon.deploy
 
 import groovy.json.JsonSlurper
+import cz.alenkacz.gradle.marathon.deploy.tasks.NamedTask
 import org.asynchttpclient.AsyncHttpClient
 import org.asynchttpclient.DefaultAsyncHttpClient
 import org.glassfish.jersey.media.sse.SseFeature
@@ -12,7 +13,7 @@ import javax.ws.rs.client.ClientBuilder
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 
-abstract class DeployTaskBase extends DefaultTask  {
+abstract class DeployTaskBase extends NamedTask  {
     PluginExtension pluginExtension
     private AsyncHttpClient asyncHttpClient
     private Client client
