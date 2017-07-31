@@ -9,5 +9,9 @@ class DestroyTask extends NamedTask  {
     @TaskAction
     def deployToMarathon() {
     }
+
+    String getTaskName() {
+        return "destroyApp"
+    }
 }
 

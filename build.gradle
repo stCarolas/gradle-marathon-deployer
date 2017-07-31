@@ -1,30 +1,8 @@
-buildscript {
-    repositories {
-        jcenter()
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
-    dependencies {
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-        classpath "com.avast.gradle:docker-compose-gradle-plugin:0.4.2"
-        classpath "com.gradle.publish:plugin-publish-plugin:0.9.7"
-    }
-}
-
-plugins {
-    id 'net.researchgate.release' version '2.6.0'
-}
-
 group 'cz.alenkacz.gradle'
 
 apply plugin: 'groovy'
-apply plugin: 'java'
-apply plugin: 'maven'
 apply plugin: 'java-gradle-plugin'
-apply plugin: 'com.jfrog.bintray'
-apply plugin: 'docker-compose'
-apply plugin: "com.gradle.plugin-publish"
+apply plugin: 'maven-publish'
 
 repositories {
     jcenter()
@@ -33,22 +11,16 @@ repositories {
 sourceCompatibility = '1.8'
 targetCompatibility = '1.8'
 
-if (System.getenv("runIntegrationTests").equals("true")) {
-    // integration tests must be run from docker only, because it require docker network
-    dockerCompose.isRequiredBy(test)
-}
-dockerCompose {
-    useComposeFiles = ['docker-compose-test.yml']
-    waitForTcpPortsTimeout = java.time.Duration.ofMinutes(1)
-}
-
-test.doFirst {
-    dockerCompose.exposeAsEnvironment(test)
-}
-
-
 task wrapper(type: Wrapper) {
     gradleVersion = "3.5"
+}
+
+publishing {
+    publications {
+        plugin(MavenPublication) {
+            from components.java
+        }
+    }
 }
 
 dependencies {
@@ -64,48 +36,11 @@ dependencies {
     testCompile 'com.github.mohitsoni:marathon-client:0.4.2'
 }
 
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allSource
-    classifier = 'sources'
-}
-
-artifacts {
-    archives sourcesJar
-}
-
-bintray {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
-    configurations = ['archives']
-    publish = true
-    pkg {
-        repo = 'maven'
-        name = 'gradle-marathon-deployer'
-        desc = 'Gradle plugin that will deploy your application to the Marathon cloud.'
-        licenses = ['MIT']
-        vcsUrl = 'https://github.com/alenkacz/gradle-marathon-deployer.git'
-        websiteUrl = 'https://github.com/alenkacz/gradle-marathon-deployer'
-        issueTrackerUrl = 'https://github.com/alenkacz/gradle-marathon-deployer/issues'
-        labels = ['marathon', 'mesos', 'docker', 'deploy', 'cloud']
-        version {
-            name = project.version
-            vcsTag = project.version
-        }
-    }
-}
-
-project.ext.set('gradle.publish.key', System.getenv('GRADLE_PORTAL_KEY'))
-project.ext.set('gradle.publish.secret', System.getenv('GRADLE_PORTAL_SECRET'))
-pluginBundle {
-    website = 'https://github.com/alenkacz/gradle-marathon-deployer'
-    vcsUrl = 'https://github.com/alenkacz/gradle-marathon-deployer'
-    description = 'Gradle plugin that can deploy your application to Marathon'
-    tags = ['marathon', 'deploy']
-
+gradlePlugin{
     plugins {
         marathonPlugin {
-            id = 'cz.alenkacz.gradle.marathon.deploy'
-            displayName = 'Gradle Marathon Deploy plugin'
+            id = 'cz.alenkacz.gradle.marathon-deploy'
+            implementationClass = "cz.alenkacz.gradle.marathon.deploy.MarathonDeployPlugin"
         }
     }
 }

@@ -12,4 +12,8 @@ class PrintTask extends NamedTask {
         def marathonJsonEnvelope = new MarathonJsonEnvelope(pluginExtension, new ResourcesRatioFetcher(pluginExtension.getMarathonApiUrl()).getMesosResourcesRatio())
         println(marathonJsonEnvelope.getFinalJson(new NoOpLogger()))
     }
+
+    String getTaskName() {
+        return "printMarathonManifest"
+    }
 }
